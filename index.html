@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Green Scan - AI Plant Doctor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    /* Custom Gradient Theme */
+    :root {
+      --primary: #2ecc71;
+      --secondary: #27ae60;
+      --accent: #e74c3c;
+      --dark: #2c3e50;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f6fa 0%, #dcdde1 100%);
+    }
+
+    /* Animated Hero Section */
+    .hero {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      padding: 4rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      color: white;
+    }
+    .hero h1 {
+      font-size: 3.5rem;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+      animation: float 3s ease-in-out infinite;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* Interactive Upload Section */
+    .upload-zone {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    .upload-zone:hover {
+      transform: translateY(-5px);
+    }
+    .file-input {
+      border: 3px dashed var(--primary);
+      border-radius: 15px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .file-input:hover {
+      background: #f8f9fa;
+    }
+    .btn-gradient {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white !important;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+      margin-top: 1rem;
+    }
+    .btn-gradient:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+    .file-name {
+      margin-top: 1rem;
+      color: var(--dark);
+      font-weight: bold;
+    }
+
+    /* Image Preview */
+    .image-preview {
+      margin-top: 1rem;
+      display: none;
+    }
+    .image-preview img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* Dynamic Results Display */
+    .results-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 2rem auto;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .results-card h3 {
+      margin-top: 0;
+    }
+    .disease-info h4 {
+      margin: 0.5rem 0;
+    }
+    .confidence-meter {
+      height: 20px;
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      margin: 1rem 0;
+    }
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 0%;
+      transition: width 1s ease;
+    }
+    /* Extra spacing for confidence text and treatment section */
+    #confidenceText {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+    .treatment {
+      margin-top: 30px;
+    }
+
+    /* Feature Cards */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 4rem 2rem;
+    }
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: var(--dark);
+      color: white;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Hero Section -->
+  <section class="hero">
+    <h1>🌿 Green Scan</h1>
+    <p class="tagline">Your AI-Powered Plant Doctor</p>
+  </section>
+
+  <!-- Interactive Upload Section -->
+  <div class="upload-zone">
+    <div class="file-input" id="uploadContainer">
+      <i class="fas fa-leaf fa-3x" style="color: var(--primary);"></i>
+      <h2>Upload Plant Image</h2>
+      <!-- Hidden File Input -->
+      <input type="file" id="imageInput" accept="image/*" hidden>
+      <!-- Choose File Button -->
+      <button class="btn-gradient" onclick="document.getElementById('imageInput').click()">Choose File</button>
+      <!-- File Name Display -->
+      <p id="fileName" class="file-name"></p>
+      <!-- Image Preview -->
+      <div class="image-preview" id="previewContainer">
+        <img id="previewImg" alt="Preview">
+      </div>
+      <!-- Analyze Button -->
+      <button class="btn-gradient" id="analyzeBtn" style="margin-top:10px;" disabled>Detect Disease</button>
+    </div>
+  </div>
+
+  <!-- Dynamic Results Display -->
+  <div class="results-card" id="resultsCard">
+    <h3>Diagnosis Results</h3>
+    <div class="disease-info">
+      <h4 id="diseaseTitle"></h4>
+      <div class="confidence-meter">
+        <div class="confidence-fill" id="confidenceFill"></div>
+      </div>
+      <span id="confidenceText"></span>
+    </div>
+    <div class="treatment">
+      <h4>🩺 Recommended Treatment</h4>
+      <ul id="treatmentList"></ul>
+    </div>
+  </div>
+
+  <!-- Feature Cards -->
+  <section class="features">
+    <div class="feature-card">
+      <i class="fas fa-bolt fa-2x"></i>
+      <h3>Instant Diagnosis</h3>
+      <p>Get real-time AI analysis in seconds</p>
+    </div>
+    <div class="feature-card">
+      <i class="fas fa-book-medical fa-2x"></i>
+      <h3>Expert Solutions</h3>
+      <p>Curated treatment plans from botanists</p>
+    </div>
+    <div class="feature-card">
+      <i class="fas fa-seedling fa-2x"></i>
+      <h3>Prevention Tips</h3>
+      <p>Keep your plants healthy long-term</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 Green Scan. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const fileNameEl = document.getElementById('fileName');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImg = document.getElementById('previewImg');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+
+    const resultsCard = document.getElementById('resultsCard');
+    const diseaseTitle = document.getElementById('diseaseTitle');
+    const confidenceFill = document.getElementById('confidenceFill');
+    const confidenceText = document.getElementById('confidenceText');
+    const treatmentList = document.getElementById('treatmentList');
+    const uploadContainer = document.getElementById('uploadContainer');
+
+    // DRAG & DROP Functionality
+    uploadContainer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadContainer.style.backgroundColor = '#f8f9fa';
+    });
+    uploadContainer.addEventListener('dragleave', () => {
+      uploadContainer.style.backgroundColor = '';
+    });
+    uploadContainer.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        imageInput.files = e.dataTransfer.files;
+        fileNameEl.textContent = file.name;
+        previewImage(file);
+        analyzeBtn.disabled = false;
+        // Auto-trigger detection on drop
+        analyzeBtn.click();
+      }
+      uploadContainer.style.backgroundColor = '';
+    });
+
+    // FILE SELECTION Handler
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        const file = e.target.files[0];
+        fileNameEl.textContent = file.name;
+        previewImage(file);
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    // IMAGE PREVIEW Function
+    function previewImage(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        previewContainer.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ANALYZE BUTTON -> Calls /predict API
+    analyzeBtn.addEventListener('click', async () => {
+      if (!imageInput.files.length) {
+        alert("Please select an image first!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", imageInput.files[0]);
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        console.log("API Response:", data);
+
+        if (data.disease && data.confidence !== undefined && data.treatment) {
+          // Update UI with model output
+          diseaseTitle.textContent = data.disease;
+          confidenceFill.style.width = data.confidence + "%";
+          confidenceText.textContent = data.confidence + "% Confidence";
+          treatmentList.innerHTML = "";
+          const steps = data.treatment.split(";");
+          steps.forEach(step => {
+            const li = document.createElement('li');
+            li.textContent = step.trim();
+            treatmentList.appendChild(li);
+          });
+          resultsCard.style.display = 'block';
+          window.scrollTo({
+            top: resultsCard.offsetTop - 100,
+            behavior: 'smooth'
+          });
+        } else {
+          alert("Error: Invalid API response");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to fetch prediction. Check the backend.");
+      }
+    });
+  </script>
+</body>
+</html>
